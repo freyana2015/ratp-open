@@ -110,7 +110,6 @@
 </template>
 <script>
 import gql from 'graphql-tag'
-// import GetLinesByType from '../graphql/GetLinesByType.gql'
 
 export default {
     data: () => ({
@@ -161,26 +160,6 @@ export default {
 
         is_stations_loaded: false,
     }),
-    // apollo: {
-    //     lines: {
-    //         query: gql`query ($transport_type: String!) {
-    //             lines (transport_type_code: $transport_type) {
-    //                 code
-    //                 name
-    //                 directions
-    //                 id
-    //             }
-    //         }`,
-    //         variables() {
-    //             // this should be reactive
-    //             // this is not reactive if data is nested deep
-    //             return {
-    //                 transport_type: this.ratp[this.station_details.transport_type_index].transport_type
-    //             }
-    //         }
-    //     }
-    //     // getLinesByType: GetLinesByType
-    // },
     created() {
         this.getLines()
     },
@@ -203,7 +182,6 @@ export default {
                     transport_type: this.ratp[this.station_details.transport_type_index].transport_type
                 },
             }).then((response) => {
-                console.log(response)
                 const lines_response = response.data.lines
 
                 let lines = []
@@ -291,53 +269,62 @@ export default {
                 console.error(error)
             })
         },
-        async getStations() {
+        getStations() {
             this.station_details.station_index = ''
             this.station_details.schedules = []
             if ( this.ratp[this.station_details.transport_type_index].lines[this.station_details.line_index].stations === undefined
                 || this.ratp[this.station_details.transport_type_index].lines[this.station_details.line_index].stations.length === 0 ) {
                 this.is_stations_loaded = false
-                try {
-                    const url = "https://api-ratp.pierre-grimaud.fr/v3/stations/" 
-                        + this.ratp[this.station_details.transport_type_index].transport_type
-                        + "/" + this.ratp[this.station_details.transport_type_index].lines[this.station_details.line_index].code
-                    const response = await fetch(url)
-                    const response_json = await response.json()
-                    const stations = response_json.result.stations
+                this.$apollo.query({
+                    query: gql`query ($transport_type_code: String!, $line_code: String!) {
+                        stations (transport_type_code: $transport_type_code, line_code: $line_code) {
+                            name
+                            slug
+                        }
+                    }`,
+                    variables: {
+                        transport_type_code: this.ratp[this.station_details.transport_type_index].transport_type,
+                        line_code: this.ratp[this.station_details.transport_type_index].lines[this.station_details.line_index].code
+                    },
+                }).then((response) => {
+                    const stations = response.data.stations
                     for ( let i = 0; i < stations.length; i++ ) {
                         stations[i].index = i
                     }
                     this.ratp[this.station_details.transport_type_index].lines[this.station_details.line_index].stations = stations
                     this.is_stations_loaded = true
-                }
-                catch (err) {
-                    console.log('fetch failed', err);
-                }
+                }).catch((error) => {
+                    console.error(error)
+                })
             } else {
                 this.is_stations_loaded = true
             }
         },
-        async getSchedules() {
-            try {
-                const url = "https://api-ratp.pierre-grimaud.fr/v3/schedules/" 
-                    + this.ratp[this.station_details.transport_type_index].transport_type
-                    + "/" + this.ratp[this.station_details.transport_type_index].lines[this.station_details.line_index].code
-                    + "/" + this.ratp[this.station_details.transport_type_index].lines[this.station_details.line_index].stations[this.station_details.station_index].slug
-                    + "/A+R"
-                const response = await fetch(url)
-                const response_json = await response.json()
-                const schedules = response_json.result.schedules 
+        getSchedules() {
+            this.$apollo.query({
+                query: gql`query ($transport_type_code: String!, $line_code: String!, $station_slug: String!) {
+                    schedules (transport_type_code: $transport_type_code, line_code: $line_code, station_slug: $station_slug) {
+                        message
+                        destination
+                    }
+                }`,
+                variables: {
+                    transport_type_code: this.ratp[this.station_details.transport_type_index].transport_type,
+                    line_code: this.ratp[this.station_details.transport_type_index].lines[this.station_details.line_index].code,
+                    station_slug: this.ratp[this.station_details.transport_type_index].lines[this.station_details.line_index].stations[this.station_details.station_index].slug
+                },
+            }).then((response) => {
+                const schedules = response.data.schedules
                 const first_destination = schedules[0].destination 
                 for ( let i = 0; i < schedules.length; i++ ) {
                     schedules[i].right = schedules[i].destination === first_destination
                     schedules[i].index = i
                 }
-                this.station_details.schedules = schedules             
-            }
-            catch (err) {
-                console.log('fetch failed', err);
-            }
-        }
+                this.station_details.schedules = schedules 
+            }).catch((error) => {
+                console.error(error)
+            })
+        },
     }
 }
 </script>
