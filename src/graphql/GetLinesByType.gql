@@ -1,8 +1,0 @@
-query getLinesByType ($transport_type: String!) {
-  lines (transport_type: $transport_type) {
-    code
-    name
-    directions
-    id
-  }
-}

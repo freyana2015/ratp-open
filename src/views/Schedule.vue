@@ -82,6 +82,8 @@
                     item-text="name"
                     item-value="index"
                     @change="getSchedules"
+                    :append-icon="is_schedule_loading ? 'fas fa-sync fa-spin' : 'fas fa-sync'"
+                    @click:append="getSchedules"
                     >
                 </v-autocomplete>
             </v-flex>
@@ -157,6 +159,7 @@ export default {
         },
 
         is_stations_loaded: false,
+        is_schedule_loading: false,
     }),
     async created() {
         await this.getLines()
@@ -293,6 +296,7 @@ export default {
             }
         },
         async getSchedules() {
+            this.is_schedule_loading = true
             try {
                 const url = "https://api-ratp.pierre-grimaud.fr/v3/schedules/" 
                     + this.ratp[this.station_details.transport_type_index].transport_type
@@ -312,6 +316,7 @@ export default {
             catch (err) {
                 console.log('fetch failed', err);
             }
+            this.is_schedule_loading = false
         }
     }
 }

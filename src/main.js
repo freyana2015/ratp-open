@@ -9,7 +9,7 @@ import VueApollo from "vue-apollo"
 Vue.config.productionTip = false
 
 const apolloClient = new ApolloClient({
-  uri: 'http://localhost:4000/graphql'
+  uri: 'https://apollo-datasource-rest-example-xakpgtaqks.now.sh/graphql'
 })
 
 const apolloProvider = new VueApollo({

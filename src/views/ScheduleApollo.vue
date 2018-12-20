@@ -82,6 +82,8 @@
                     item-text="name"
                     item-value="index"
                     @change="getSchedules"
+                    :append-icon="is_schedule_loading ? 'fas fa-sync fa-spin' : 'fas fa-sync'"
+                    @click:append="getSchedules"
                     >
                 </v-autocomplete>
             </v-flex>
@@ -159,6 +161,7 @@ export default {
         },
 
         is_stations_loaded: false,
+        is_schedule_loading: false,
     }),
     created() {
         this.getLines()
@@ -301,6 +304,7 @@ export default {
             }
         },
         getSchedules() {
+            this.is_schedule_loading = true
             this.$apollo.query({
                 query: gql`query ($transport_type_code: String!, $line_code: String!, $station_slug: String!) {
                     schedules (transport_type_code: $transport_type_code, line_code: $line_code, station_slug: $station_slug) {
@@ -313,6 +317,7 @@ export default {
                     line_code: this.ratp[this.station_details.transport_type_index].lines[this.station_details.line_index].code,
                     station_slug: this.ratp[this.station_details.transport_type_index].lines[this.station_details.line_index].stations[this.station_details.station_index].slug
                 },
+                fetchPolicy: 'no-cache'
             }).then((response) => {
                 const schedules = response.data.schedules
                 const first_destination = schedules[0].destination 
@@ -324,6 +329,7 @@ export default {
             }).catch((error) => {
                 console.error(error)
             })
+            this.is_schedule_loading = false
         },
     }
 }
