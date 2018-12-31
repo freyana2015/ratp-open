@@ -1,8 +1,12 @@
 import Vue from 'vue'
 import Vuetify from 'vuetify/lib'
+import { Touch } from 'vuetify/lib/directives'
 import 'vuetify/src/stylus/app.styl'
 
 Vue.use(Vuetify, {
+  directives: {
+    Touch
+  },
   theme: {
     primary: '#ee44aa',
     secondary: '#424242',

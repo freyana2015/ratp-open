@@ -3,7 +3,7 @@
         <div>
             Schedule
         </div>
-        <v-layout row wrap align-center>
+        <v-layout v-touch="{ down: () => swipe() }" row wrap align-center>
 
             <v-flex xs12>
                 <v-autocomplete
@@ -82,8 +82,8 @@
                     item-text="name"
                     item-value="index"
                     @change="getSchedules"
-                    :append-icon="is_schedule_loading ? 'fas fa-sync fa-spin' : 'fas fa-sync'"
-                    @click:append="getSchedules"
+                    :append-outer-icon="is_schedule_loading ? 'fas fa-sync fa-spin' : 'fas fa-sync'"
+                    @click:append-outer="getSchedules"
                     >
                 </v-autocomplete>
             </v-flex>
@@ -317,6 +317,11 @@ export default {
                 console.log('fetch failed', err);
             }
             this.is_schedule_loading = false
+        },
+        async swipe() {
+            if ( this.station_details.station_index !== '' ) {
+                await this.getSchedules()
+            }
         }
     }
 }
