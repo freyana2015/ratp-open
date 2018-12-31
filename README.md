@@ -1,16 +1,7 @@
 # ratp-open
 
-## Project setup
-```
-yarn install
-```
+## Demo projet pour avoir l'horaire du Métro, RER, Bus, Tramway, Noctilien
 
-### Compiles and hot-reloads for development
-```
-yarn run serve
-```
 
-### Compiles and minifies for production
-```
-yarn run build
-```
+### Vuejs, Vuetify, GraphQL, Apollo
+
