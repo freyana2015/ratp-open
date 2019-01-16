@@ -46,7 +46,7 @@
                     item-value="index"
                     item-text="description"
                     single-line
-                    @change="getStations">
+                    @change="onLineChosen">
                     <template
                         slot="selection"
                         slot-scope="data">
@@ -107,6 +107,12 @@
                 </v-timeline>
             </v-flex>
 
+            <v-flex xs10 align-center justify-center offset-xs1>
+                <v-alert :value="traffic.title.length > 0" type="info" outline>
+                    <b>{{ traffic.title }}:</b> {{ traffic.message }}
+                </v-alert>
+            </v-flex>
+
         </v-layout>
     </v-container>
 </template>
@@ -158,6 +164,11 @@ export default {
             schedules: []
         },
 
+        traffic: {
+            title: '',
+            message: ''
+        },
+
         is_stations_loaded: false,
         is_schedule_loading: false,
     }),
@@ -166,6 +177,10 @@ export default {
     },
     methods: {
         async getLines() {
+            this.traffic = {
+                title: '',
+                message: ''
+            }
             this.station_details.line_index = ''
             this.station_details.station_index = ''
             this.is_stations_loaded = false
@@ -269,6 +284,10 @@ export default {
                 }
             }
         },
+        async onLineChosen() {
+            await this.getStations()
+            await this.getTraffic()
+        },
         async getStations() {
             this.station_details.station_index = ''
             this.station_details.schedules = []
@@ -293,6 +312,27 @@ export default {
                 }
             } else {
                 this.is_stations_loaded = true
+            }
+        },
+        async getTraffic() {
+            this.traffic = {
+                title: '',
+                message: ''
+            }
+            if ( ['rers', 'metros', 'tramways'].includes(this.ratp[this.station_details.transport_type_index].transport_type) ) {
+                    try {
+                        const url = "https://api-ratp.pierre-grimaud.fr/v3/traffic/" 
+                            + this.ratp[this.station_details.transport_type_index].transport_type
+                            + "/" + this.ratp[this.station_details.transport_type_index].lines[this.station_details.line_index].code
+                        const response = await fetch(url)
+                        const response_json = await response.json()
+                        this.traffic.title = response_json.result.title
+                        this.traffic.message = response_json.result.message
+                        console.log(this.traffic)
+                    }
+                    catch (err) {
+                        console.log('fetch failed', err);
+                    }
             }
         },
         async getSchedules() {
