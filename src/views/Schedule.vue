@@ -188,7 +188,7 @@ export default {
 
             if ( this.ratp[this.station_details.transport_type_index].lines.length === 0 ) {
                 try {
-                    const url = "https://api-ratp.pierre-grimaud.fr/v3/lines/" + this.ratp[this.station_details.transport_type_index].transport_type
+                    const url = "https://api-ratp.pierre-grimaud.fr/v4/lines/" + this.ratp[this.station_details.transport_type_index].transport_type
                     const response = await fetch(url)
                     const response_json = await response.json()
                     const lines_response = response_json.result[this.ratp[this.station_details.transport_type_index].transport_type]
@@ -295,7 +295,7 @@ export default {
                 || this.ratp[this.station_details.transport_type_index].lines[this.station_details.line_index].stations.length === 0 ) {
                 this.is_stations_loaded = false
                 try {
-                    const url = "https://api-ratp.pierre-grimaud.fr/v3/stations/" 
+                    const url = "https://api-ratp.pierre-grimaud.fr/v4/stations/" 
                         + this.ratp[this.station_details.transport_type_index].transport_type
                         + "/" + this.ratp[this.station_details.transport_type_index].lines[this.station_details.line_index].code
                     const response = await fetch(url)
@@ -321,7 +321,7 @@ export default {
             }
             if ( ['rers', 'metros', 'tramways'].includes(this.ratp[this.station_details.transport_type_index].transport_type) ) {
                     try {
-                        const url = "https://api-ratp.pierre-grimaud.fr/v3/traffic/" 
+                        const url = "https://api-ratp.pierre-grimaud.fr/v4/traffic/" 
                             + this.ratp[this.station_details.transport_type_index].transport_type
                             + "/" + this.ratp[this.station_details.transport_type_index].lines[this.station_details.line_index].code
                         const response = await fetch(url)
@@ -338,7 +338,7 @@ export default {
         async getSchedules() {
             this.is_schedule_loading = true
             try {
-                const url = "https://api-ratp.pierre-grimaud.fr/v3/schedules/" 
+                const url = "https://api-ratp.pierre-grimaud.fr/v4/schedules/" 
                     + this.ratp[this.station_details.transport_type_index].transport_type
                     + "/" + this.ratp[this.station_details.transport_type_index].lines[this.station_details.line_index].code
                     + "/" + this.ratp[this.station_details.transport_type_index].lines[this.station_details.line_index].stations[this.station_details.station_index].slug
